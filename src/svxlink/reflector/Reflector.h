@@ -51,6 +51,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <AsyncTimer.h>
 #include <AsyncAtTimer.h>
 #include <AsyncHttpServerConnection.h>
+#include <AsyncExec.h>
 
 
 /****************************************************************************
@@ -201,6 +202,7 @@ class Reflector : public sigc::trackable
     std::string clientCertPem(const std::string& callsign) const;
     std::string caBundlePem(void) const;
     std::string issuingCertPem(void) const;
+    bool callsignOk(const std::string& callsign) const;
 
   protected:
 
@@ -273,6 +275,7 @@ class Reflector : public sigc::trackable
     bool buildPath(const std::string& sec, const std::string& tag,
                    const std::string& defdir, std::string& defpath);
     bool removeClientCert(const std::string& cn);
+    void runCAHook(const Async::Exec::Environment& env);
 
 };  /* class Reflector */
 
