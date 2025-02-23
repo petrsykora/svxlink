@@ -144,7 +144,6 @@ class LocationInfo
 
     struct AprsStatistics
     {
-      std::string logic_name;
       unsigned    rx_on_nr        {0};
       unsigned    tx_on_nr        {0};
       float       rx_sec          {0.0f};
@@ -183,9 +182,11 @@ class LocationInfo
       Coordinate  lat_pos;
       Coordinate  lon_pos;
 
+      std::string logincall;
+      std::string loginssid;
       std::string mycall;
       std::string prefix;
-      std::string path          {""};
+      std::string path          {"TCPIP*"};
       std::string comment       {"SvxLink by SM0SVX (www.svxlink.org)"};
       std::string destination   {"APSVX1"};
       bool        debug         {false};
