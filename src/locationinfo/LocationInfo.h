@@ -123,7 +123,7 @@ class LocationInfo
 
     struct Cfg
     {
-      unsigned int binterval    {10}; // Minutes
+      unsigned int binterval    {10}; // Beacon interval in minutes
       unsigned int frequency    {0};
       unsigned int power        {0};
       unsigned int tone         {0};
@@ -136,13 +136,15 @@ class LocationInfo
       Coordinate  lat_pos;
       Coordinate  lon_pos;
 
+      std::string objectname;
       std::string sourcecall;
       std::string logincall;
       std::string loginssid;
+      std::string statscall;
       std::string mycall;
       std::string prefix;
       std::string path          {"TCPIP*"};
-      std::string comment       {"SvxLink by SM0SVX (www.svxlink.org)"};
+      std::string comment       {"SvxLink Node"};
       std::string destination   {"APSVX1"};
       bool        debug         {false};
       std::string filter;
@@ -178,7 +180,7 @@ class LocationInfo
     void update3rdState(const std::string& call, const std::string& info);
     void updateQsoStatus(int action, const std::string& call,
                          const std::string& name,
-                         std::list<std::string>& call_list);
+                         const std::list<std::string>& calls);
     bool getTransmitting(const std::string &name);
     void setTransmitting(const std::string& name, bool is_transmitting,
                          Timepoint tp=Clock::now());
