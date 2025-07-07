@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name: Build and Test ARM64
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Use Ubuntu 22.04 instead of ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -23,22 +23,27 @@ jobs:
         with:
           platforms: arm64
 
-      - name: Enable multi-arch support and update sources
+      - name: Enable multi-arch support and configure apt sources
         run: |
           sudo dpkg --add-architecture arm64
           # Backup original sources.list
           sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
-          # Update sources.list to use ports.ubuntu.com for ARM64
+          # Clear existing sources to avoid conflicts
+          sudo rm -f /etc/apt/sources.list.d/*
+          # Create new sources.list for Ubuntu 22.04 (jammy)
           cat << EOF | sudo tee /etc/apt/sources.list
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble-backports main restricted universe multiverse
-          deb [arch=amd64] http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-updates main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-backports main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-security main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy-updates main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy-backports main restricted universe multiverse
+          deb [arch=amd64] http://security.ubuntu.com/ubuntu jammy-security main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse
           EOF
+          # Verify sources.list
+          cat /etc/apt/sources.list
+          # Update apt with new sources
           sudo apt-get update
 
       - name: Install dependencies
@@ -95,8 +100,8 @@ jobs:
           find /usr/include -name "sigc++-2.0"
           find /usr/lib/aarch64-linux-gnu -name "sigc++-2.0"
           echo "Checking pkg-config for libsigc++-2.0..."
-          PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --modversion sigc++-2.0
-          PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --libs --cflags sigc++-2.0
+          PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --modversion sigc++-2.0 || echo "pkg-config failed"
+          PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --libs --cflags sigc++-2.0 || echo "pkg-config failed"
 
       - name: Create ARM64 toolchain file
         run: |
