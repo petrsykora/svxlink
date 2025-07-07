@@ -30,7 +30,7 @@ jobs:
           sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
           # Clear existing sources to avoid conflicts
           sudo rm -rf /etc/apt/sources.list.d/*
-          # Create new sources.list for Ubuntu 24.04 (noble) using ports.ubuntu.com for ARM64
+          # Create new sources.list for Ubuntu 24.04 (noble)
           cat << EOF | sudo tee /etc/apt/sources.list
           deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
           deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
@@ -52,53 +52,41 @@ jobs:
             build-essential \
             cmake \
             make \
-            libsigc++-2.0-dev \
-            libsigc++-2.0-dev:arm64 \
-            libgsm1-dev \
-            libgsm1-dev:arm64 \
-            libpopt-dev \
-            libpopt-dev:arm64 \
-            tcl-dev \
-            tcl-dev:arm64 \
-            libgcrypt20-dev \
-            libgcrypt20-dev:arm64 \
-            libspeex-dev \
-            libspeex-dev:arm64 \
-            libasound2-dev \
-            libasound2-dev:arm64 \
-            libopus-dev \
-            libopus-dev:arm64 \
-            qtbase5-dev \
-            qtbase5-dev:arm64 \
-            qtmultimedia5-dev \
-            qtmultimedia5-dev:arm64 \
-            qttools5-dev \
-            qttools5-dev:arm64 \
-            libvorbis-dev \
-            libvorbis-dev:arm64 \
-            libcurl4-openssl-dev \
-            libcurl4-openssl-dev:arm64 \
-            libssl-dev \
-            libssl-dev:arm64 \
-            libjsoncpp-dev \
-            libjsoncpp-dev:arm64 \
-            librtlsdr-dev \
-            librtlsdr-dev:arm64 \
-            libgpiod-dev \
-            libgpiod-dev:arm64 \
             qemu-user-static \
             binfmt-support \
             gcc-aarch64-linux-gnu \
-            g++-aarch64-linux-gnu
+            g++-aarch64-linux-gnu \
+            libsigc++-2.0-dev:arm64 \
+            libgsm1-dev:arm64 \
+            libpopt-dev:arm64 \
+            tcl-dev:arm64 \
+            libgpg-error-dev:arm64 \
+            libgcrypt20-dev:arm64 \
+            libspeex-dev:arm64 \
+            libasound2-dev:arm64 \
+            libopus-dev:arm64 \
+            qtbase5-dev:arm64 \
+            qtmultimedia5-dev:arm64 \
+            qttools5-dev:arm64 \
+            libvorbis-dev:arm64 \
+            libcurl4-openssl-dev:arm64 \
+            libssl-dev:arm64 \
+            libjsoncpp-dev:arm64 \
+            librtlsdr-dev:arm64 \
+            libgpiod-dev:arm64
 
-      - name: Debug libsigc++ installation
+      - name: Debug dependency installation
         run: |
-          echo "Checking libsigc++-2.0-dev installation..."
-          dpkg -l | grep libsigc++-2.0-dev
+          echo "Checking dependency installation..."
+          dpkg -l | grep -E 'libsigc++-2.0-dev|libgpg-error-dev|libgcrypt20-dev'
           echo "Listing ARM64 libsigc++ files..."
           find /usr/lib/aarch64-linux-gnu -name "libsigc++-2.0*"
           find /usr/include -name "sigc++-2.0"
           find /usr/lib/aarch64-linux-gnu -name "sigc++-2.0"
+          echo "Listing ARM64 libgcrypt files..."
+          find /usr/lib/aarch64-linux-gnu -name "libgcrypt*"
+          echo "Listing ARM64 libgpg-error files..."
+          find /usr/lib/aarch64-linux-gnu -name "libgpg-error*"
           echo "Checking pkg-config for libsigc++-2.0..."
           PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --modversion sigc++-2.0 || echo "pkg-config failed"
           PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --libs --cflags sigc++-2.0 || echo "pkg-config failed"
