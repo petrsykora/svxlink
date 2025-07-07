@@ -29,7 +29,6 @@ jobs:
             libspeex-dev \
             libasound2-dev \
             libopus-dev \
-            qt5-default \
             libvorbis-dev \
             libcurl4-openssl-dev \
             libssl-dev
