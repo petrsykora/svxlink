@@ -23,30 +23,51 @@ jobs:
         with:
           platforms: arm64
 
+      - name: Enable multi-arch support
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo apt-get update
+
       - name: Install dependencies
         run: |
-          sudo apt-get update
           sudo apt-get install -y \
             build-essential \
             cmake \
             make \
             libsigc++-2.0-dev \
+            libsigc++-2.0-dev:arm64 \
             libgsm1-dev \
+            libgsm1-dev:arm64 \
             libpopt-dev \
+            libpopt-dev:arm64 \
             tcl-dev \
+            tcl-dev:arm64 \
             libgcrypt20-dev \
+            libgcrypt20-dev:arm64 \
             libspeex-dev \
+            libspeex-dev:arm64 \
             libasound2-dev \
+            libasound2-dev:arm64 \
             libopus-dev \
+            libopus-dev:arm64 \
             qtbase5-dev \
+            qtbase5-dev:arm64 \
             qtmultimedia5-dev \
+            qtmultimedia5-dev:arm64 \
             qttools5-dev \
+            qttools5-dev:arm64 \
             libvorbis-dev \
+            libvorbis-dev:arm64 \
             libcurl4-openssl-dev \
+            libcurl4-openssl-dev:arm64 \
             libssl-dev \
+            libssl-dev:arm64 \
             libjsoncpp-dev \
+            libjsoncpp-dev:arm64 \
             librtlsdr-dev \
+            librtlsdr-dev:arm64 \
             libgpiod-dev \
+            libgpiod-dev:arm64 \
             qemu-user-static \
             binfmt-support \
             gcc-aarch64-linux-gnu \
@@ -63,13 +84,16 @@ jobs:
           set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
           set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
           set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+          # Explicitly set paths for libsigc++-2.0
+          set(SIGC2_LIBRARY /usr/lib/aarch64-linux-gnu/libsigc++-2.0.so)
+          set(SIGC2_INCLUDE_DIR /usr/include/sigc++-2.0 /usr/lib/aarch64-linux-gnu/sigc++-2.0/include)
           EOF
 
       - name: Configure for ARM64
         run: |
           mkdir -p src/build
           cd src/build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64-toolchain.cmake
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64-toolchain.cmake -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: Build for ARM64
         run: |
