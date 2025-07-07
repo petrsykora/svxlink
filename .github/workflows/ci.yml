@@ -1,6 +1,5 @@
 name: SvxLink CI
 
-# Spouštění workflow při push nebo pull requestu na větev main
 on:
   push:
     branches:
@@ -8,19 +7,17 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch: # Přidání triggeru pro ruční spuštění
 
-# Definice úloh (jobs)
 jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
-      # Stažení zdrojového kódu z repozitáře
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Instalace závislostí potřebných pro SvxLink
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -40,26 +37,22 @@ jobs:
             libcurl4-openssl-dev \
             libssl-dev
 
-      # Vytvoření build adresáře a konfigurace pomocí CMake
       - name: Configure
         run: |
           mkdir build
           cd build
           cmake ..
 
-      # Kompilace projektu
       - name: Build
         run: |
           cd build
           make -j$(nproc)
 
-      # Spuštění testů (pokud jsou k dispozici)
       - name: Run tests
         run: |
           cd build
           ctest --output-on-failure
 
-      # Volitelný krok: Archivace sestavených binárek jako artefakty
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -67,13 +60,13 @@ jobs:
           path: build/src/
           
       # Publikace na GitHub Releases (pouze při tagu)
-  #    - name: Create Release
-  #     if: startsWith(github.ref, 'refs/tags/')
-  #     uses: actions/create-release@v1
-  #      env:
-  #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #      with:
-  #        tag_name: ${{ github.ref }}
-  #        release_name: Release ${{ github.ref }}
-  #        draft: false
-  #        prerelease: false
+      - name: Create Release
+       if: startsWith(github.ref, 'refs/tags/')
+       uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
