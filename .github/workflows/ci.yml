@@ -34,10 +34,13 @@ jobs:
             libopus-dev \
             qtbase5-dev \
             qtmultimedia5-dev \
+            qttools5-dev \
             libvorbis-dev \
             libcurl4-openssl-dev \
             libssl-dev \
-            libjsoncpp-dev
+            libjsoncpp-dev \
+            librtlsdr-dev \
+            libgpiod-dev
 
       - name: Configure
         run: |
