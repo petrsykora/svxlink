@@ -73,6 +73,18 @@ jobs:
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu
 
+      - name: Debug libsigc++ installation
+        run: |
+          echo "Checking libsigc++-2.0-dev installation..."
+          dpkg -l | grep libsigc++-2.0-dev
+          echo "Listing ARM64 libsigc++ files..."
+          find /usr/lib/aarch64-linux-gnu -name "libsigc++-2.0*"
+          find /usr/include -name "sigc++-2.0"
+          find /usr/lib/aarch64-linux-gnu -name "sigc++-2.0"
+          echo "Checking pkg-config for libsigc++-2.0..."
+          PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --modversion sigc++-2.0
+          PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig pkg-config --libs --cflags sigc++-2.0
+
       - name: Create ARM64 toolchain file
         run: |
           cat << EOF > /tmp/arm64-toolchain.cmake
@@ -86,14 +98,18 @@ jobs:
           set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
           # Explicitly set paths for libsigc++-2.0
           set(SIGC2_LIBRARY /usr/lib/aarch64-linux-gnu/libsigc++-2.0.so)
-          set(SIGC2_INCLUDE_DIR /usr/include/sigc++-2.0 /usr/lib/aarch64-linux-gnu/sigc++-2.0/include)
+          set(SIGC2_INCLUDE_DIR /usr/include/sigc++-2.0;/usr/lib/aarch64-linux-gnu/sigc++-2.0/include)
           EOF
 
       - name: Configure for ARM64
         run: |
           mkdir -p src/build
           cd src/build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64-toolchain.cmake -DCMAKE_VERBOSE_MAKEFILE=ON
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64-toolchain.cmake \
+            -DSIGC2_LIBRARY=/usr/lib/aarch64-linux-gnu/libsigc++-2.0.so \
+            -DSIGC2_INCLUDE_DIR=/usr/include/sigc++-2.0:/usr/lib/aarch64-linux-gnu/sigc++-2.0/include \
+            -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: Build for ARM64
         run: |
@@ -101,10 +117,10 @@ jobs:
           make -j$(nproc)
 
       - name: Run tests
-        continue-on-error: true # Testy mohou být volitelné, pokud nejsou plně implementovány
+        continue-on-error: true # Tests may be optional if not fully implemented
         run: |
           cd src/build
-          qemu-aarch64 ./src/svxlink/svxlink --version # Základní test spuštění binárky
+          qemu-aarch64 ./src/svxlink/svxlink --version # Basic test to run the binary
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
