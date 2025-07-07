@@ -29,6 +29,7 @@ jobs:
           sudo apt-get install -y \
             build-essential \
             cmake \
+            make \
             libsigc++-2.0-dev \
             libgsm1-dev \
             libpopt-dev \
@@ -47,13 +48,9 @@ jobs:
             librtlsdr-dev \
             libgpiod-dev \
             qemu-user-static \
-            binfmt-support
-
-      - name: Configure for ARM64
-        run: |
-          mkdir -p src/build
-          cd src/build
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64-toolchain.cmake
+            binfmt-support \
+            gcc-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu
 
       - name: Create ARM64 toolchain file
         run: |
@@ -68,12 +65,11 @@ jobs:
           set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
           EOF
 
-      - name: Install ARM64 cross-compiler
+      - name: Configure for ARM64
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            gcc-aarch64-linux-gnu \
-            g++-aarch64-linux-gnu
+          mkdir -p src/build
+          cd src/build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64-toolchain.cmake
 
       - name: Build for ARM64
         run: |
