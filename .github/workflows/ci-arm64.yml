@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name: Build and Test ARM64
-    runs-on: ubuntu-22.04 # Use Ubuntu 22.04 instead of ubuntu-latest
+    runs-on: ubuntu-latest # Ubuntu 24.04 (noble) as of July 2025
 
     steps:
       - name: Checkout code
@@ -29,22 +29,22 @@ jobs:
           # Backup original sources.list
           sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
           # Clear existing sources to avoid conflicts
-          sudo rm -f /etc/apt/sources.list.d/*
-          # Create new sources.list for Ubuntu 22.04 (jammy)
+          sudo rm -rf /etc/apt/sources.list.d/*
+          # Create new sources.list for Ubuntu 24.04 (noble) using ports.ubuntu.com for ARM64
           cat << EOF | sudo tee /etc/apt/sources.list
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy main restricted universe multiverse
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy-updates main restricted universe multiverse
-          deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy-backports main restricted universe multiverse
-          deb [arch=amd64] http://security.ubuntu.com/ubuntu jammy-security main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
+          deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble-backports main restricted universe multiverse
+          deb [arch=amd64] http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-updates main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-backports main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-security main restricted universe multiverse
           EOF
           # Verify sources.list
           cat /etc/apt/sources.list
           # Update apt with new sources
-          sudo apt-get update
+          sudo apt-get update -o Acquire::http::No-Cache=True
 
       - name: Install dependencies
         run: |
