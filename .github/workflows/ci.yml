@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch: # Přidání triggeru pro ruční spuštění
+  workflow_dispatch: # Trigger pro ruční spuštění
 
 jobs:
   build:
