@@ -1,5 +1,5 @@
----
 name: SvxLink CI
+
 on:
   push:
     branches:
@@ -7,14 +7,17 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch: null
+  workflow_dispatch:
+
 jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -32,21 +35,25 @@ jobs:
             libvorbis-dev \
             libcurl4-openssl-dev \
             libssl-dev
+
       - name: Configure
         run: |
-          mkdir build
-          cd build
+          mkdir -p src/build
+          cd src/build
           cmake ..
+
       - name: Build
         run: |
-          cd build
+          cd src/build
           make -j$(nproc)
+
       - name: Run tests
         run: |
-          cd build
+          cd src/build
           ctest --output-on-failure
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: svxlink-binaries
-          path: build/src/
+          path: src/build/src/
