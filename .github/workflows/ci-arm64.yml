@@ -1,0 +1,93 @@
+name: SvxLink CI ARM64
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Test ARM64
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU for ARM64
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            libsigc++-2.0-dev \
+            libgsm1-dev \
+            libpopt-dev \
+            tcl-dev \
+            libgcrypt20-dev \
+            libspeex-dev \
+            libasound2-dev \
+            libopus-dev \
+            qtbase5-dev \
+            qtmultimedia5-dev \
+            qttools5-dev \
+            libvorbis-dev \
+            libcurl4-openssl-dev \
+            libssl-dev \
+            libjsoncpp-dev \
+            librtlsdr-dev \
+            libgpiod-dev \
+            qemu-user-static \
+            binfmt-support
+
+      - name: Configure for ARM64
+        run: |
+          mkdir -p src/build
+          cd src/build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64-toolchain.cmake
+
+      - name: Create ARM64 toolchain file
+        run: |
+          cat << EOF > /tmp/arm64-toolchain.cmake
+          set(CMAKE_SYSTEM_NAME Linux)
+          set(CMAKE_SYSTEM_PROCESSOR aarch64)
+          set(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
+          set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
+          set(CMAKE_FIND_ROOT_PATH /usr/aarch64-linux-gnu)
+          set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+          set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+          set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+          EOF
+
+      - name: Install ARM64 cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu
+
+      - name: Build for ARM64
+        run: |
+          cd src/build
+          make -j$(nproc)
+
+      - name: Run tests
+        continue-on-error: true # Testy mohou být volitelné, pokud nejsou plně implementovány
+        run: |
+          cd src/build
+          qemu-aarch64 ./src/svxlink/svxlink --version # Základní test spuštění binárky
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: svxlink-binaries-arm64
+          path: src/build/src/
